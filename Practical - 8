@@ -1,0 +1,183 @@
+def print_result(processes, ct, tat, wt):
+    print("\nPID\tAT\tBT\tCT\tTAT\tWT")
+
+    for i in range(len(processes)):
+        print(
+            f"P{processes[i]['pid']}\t"
+            f"{processes[i]['at']}\t"
+            f"{processes[i]['bt']}\t"
+            f"{ct[i]}\t"
+            f"{tat[i]}\t"
+            f"{wt[i]}"
+        )
+
+    print(f"\nAverage Turnaround Time = {sum(tat) / len(tat):.2f}")
+    print(f"Average Waiting Time    = {sum(wt) / len(wt):.2f}")
+
+
+# -------------------------------------------------
+# FCFS - First Come First Serve
+# -------------------------------------------------
+def fcfs(processes):
+    n = len(processes)
+    ct = [0] * n
+    tat = [0] * n
+    wt = [0] * n
+
+    order = sorted(range(n), key=lambda i: processes[i]["at"])
+
+    time = 0
+
+    for i in order:
+        if time < processes[i]["at"]:
+            time = processes[i]["at"]
+
+        time += processes[i]["bt"]
+        ct[i] = time
+        tat[i] = ct[i] - processes[i]["at"]
+        wt[i] = tat[i] - processes[i]["bt"]
+
+    print("\n===== FCFS Scheduling =====")
+    print_result(processes, ct, tat, wt)
+
+
+# -------------------------------------------------
+# SJF - Shortest Job First (Non-Preemptive)
+# -------------------------------------------------
+def sjf(processes):
+    n = len(processes)
+
+    ct = [0] * n
+    tat = [0] * n
+    wt = [0] * n
+
+    completed = [False] * n
+    time = 0
+    completed_count = 0
+
+    while completed_count < n:
+
+        available = [
+            i for i in range(n)
+            if not completed[i] and processes[i]["at"] <= time
+        ]
+
+        if not available:
+            time = min(
+                processes[i]["at"]
+                for i in range(n)
+                if not completed[i]
+            )
+            continue
+
+        # Select process with shortest burst time
+        i = min(
+            available,
+            key=lambda x: (processes[x]["bt"], processes[x]["at"])
+        )
+
+        time += processes[i]["bt"]
+
+        ct[i] = time
+        tat[i] = ct[i] - processes[i]["at"]
+        wt[i] = tat[i] - processes[i]["bt"]
+
+        completed[i] = True
+        completed_count += 1
+
+    print("\n===== SJF (Non-Preemptive) Scheduling =====")
+    print_result(processes, ct, tat, wt)
+
+
+# -------------------------------------------------
+# SRTF - Shortest Remaining Time First
+# -------------------------------------------------
+def srtf(processes):
+    n = len(processes)
+
+    remaining = [p["bt"] for p in processes]
+    ct = [0] * n
+    tat = [0] * n
+    wt = [0] * n
+
+    time = 0
+    completed = 0
+
+    while completed < n:
+
+        available = [
+            i for i in range(n)
+            if processes[i]["at"] <= time and remaining[i] > 0
+        ]
+
+        if not available:
+            time += 1
+            continue
+
+        # Select process with shortest remaining time
+        i = min(
+            available,
+            key=lambda x: (remaining[x], processes[x]["at"])
+        )
+
+        # Execute for one unit of time
+        remaining[i] -= 1
+        time += 1
+
+        # Process completed
+        if remaining[i] == 0:
+            completed += 1
+            ct[i] = time
+            tat[i] = ct[i] - processes[i]["at"]
+            wt[i] = tat[i] - processes[i]["bt"]
+
+    print("\n===== SRTF (Preemptive SJF) Scheduling =====")
+    print_result(processes, ct, tat, wt)
+
+
+# -------------------------------------------------
+# Main Program
+# -------------------------------------------------
+
+n = int(input("Enter number of processes: "))
+
+processes = []
+
+for i in range(n):
+    print(f"\nProcess P{i + 1}")
+
+    at = int(input("Enter Arrival Time: "))
+    bt = int(input("Enter Burst Time: "))
+
+    processes.append({
+        "pid": i + 1,
+        "at": at,
+        "bt": bt
+    })
+
+
+while True:
+
+    print("\n========== CPU SCHEDULING ==========")
+    print("1. FCFS")
+    print("2. SJF (Non-Preemptive)")
+    print("3. SRTF (Preemptive)")
+    print("4. Exit")
+
+    choice = int(input("Enter your choice: "))
+
+    if choice == 1:
+        fcfs(processes)
+
+    elif choice == 2:
+        sjf(processes)
+
+    elif choice == 3:
+        srtf(processes)
+
+    elif choice == 4:
+        print("Program terminated.")
+        break
+
+    else:
+        print("Invalid choice!")
