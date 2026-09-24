@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main()
+{
+    int pid;
+
+    printf("Program started\n");
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        printf("Fork failed\n");
+        return 1;
+    }
+
+    if (pid == 0)
+    {
+        // Child process
+        printf("\nChild Process\n");
+
+        // (a) Same program, same code
+        printf("Child: This is the same program.\n");
+
+        // (b) Same program, different code
+        printf("Child: I am doing the child's work.\n");
+    }
+    else
+    {
+        // Parent process
+        printf("\nParent Process\n");
+
+        // (a) Same program, same code
+        printf("Parent: This is the same program.\n");
+
+        // (b) Same program, different code
+        printf("Parent: I am doing the parent's work.\n");
+
+        // (c) Parent waits for child
+        wait(NULL);
+
+        printf("\nParent: Child has finished.\n");
+        printf("Parent: Now I am terminating.\n");
+    }
+
+    return 0;
+}
