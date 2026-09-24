@@ -1,0 +1,116 @@
+def print_results(processes, waiting_time, turnaround_time):
+    print("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time")
+
+    for i, p in enumerate(processes):
+        print(f"P{p['pid']}\t{p['burst']}\t\t{waiting_time[i]}\t\t{turnaround_time[i]}")
+
+    print(f"\nAverage Waiting Time: {sum(waiting_time) / len(waiting_time):.2f}")
+    print(f"Average Turnaround Time: {sum(turnaround_time) / len(turnaround_time):.2f}")
+
+
+# ---------------- FCFS ----------------
+def fcfs(processes):
+    waiting_time = [0] * len(processes)
+    turnaround_time = [0] * len(processes)
+
+    for i in range(1, len(processes)):
+        waiting_time[i] = waiting_time[i - 1] + processes[i - 1]["burst"]
+
+    for i in range(len(processes)):
+        turnaround_time[i] = waiting_time[i] + processes[i]["burst"]
+
+    print("\n--- FCFS Scheduling ---")
+    print_results(processes, waiting_time, turnaround_time)
+
+
+# ---------------- SJF ----------------
+def sjf(processes):
+    sorted_processes = sorted(processes, key=lambda x: x["burst"])
+
+    waiting_time = [0] * len(sorted_processes)
+    turnaround_time = [0] * len(sorted_processes)
+
+    for i in range(1, len(sorted_processes)):
+        waiting_time[i] = (
+            waiting_time[i - 1] + sorted_processes[i - 1]["burst"]
+        )
+
+    for i in range(len(sorted_processes)):
+        turnaround_time[i] = (
+            waiting_time[i] + sorted_processes[i]["burst"]
+        )
+
+    print("\n--- SJF Scheduling ---")
+    print_results(sorted_processes, waiting_time, turnaround_time)
+
+
+# ---------------- Round Robin ----------------
+def round_robin(processes, quantum):
+    remaining_time = [p["burst"] for p in processes]
+    waiting_time = [0] * len(processes)
+    completion_time = [0] * len(processes)
+
+    time = 0
+
+    while True:
+        done = True
+
+        for i in range(len(processes)):
+            if remaining_time[i] > 0:
+                done = False
+
+                if remaining_time[i] > quantum:
+                    time += quantum
+                    remaining_time[i] -= quantum
+                else:
+                    time += remaining_time[i]
+                    remaining_time[i] = 0
+                    completion_time[i] = time
+
+        if done:
+            break
+
+    turnaround_time = [
+        completion_time[i] for i in range(len(processes))
+    ]
+
+    for i in range(len(processes)):
+        waiting_time[i] = turnaround_time[i] - processes[i]["burst"]
+
+    print("\n--- Round Robin Scheduling ---")
+    print_results(processes, waiting_time, turnaround_time)
+
+
+# ---------------- Main Program ----------------
+
+processes = [
+    {"pid": 1, "burst": 5},
+    {"pid": 2, "burst": 3},
+    {"pid": 3, "burst": 8},
+    {"pid": 4, "burst": 6}
+]
+
+print("OPERATING SYSTEM CPU SCHEDULING SIMULATOR")
+
+print("\nProcesses:")
+for p in processes:
+    print(f"P{p['pid']} -> Burst Time = {p['burst']}")
+
+print("\n1. FCFS")
+print("2. SJF")
+print("3. Round Robin")
+
+choice = int(input("\nEnter your choice: "))
+
+if choice == 1:
+    fcfs(processes)
+
+elif choice == 2:
+    sjf(processes)
+
+elif choice == 3:
+    quantum = int(input("Enter Time Quantum: "))
+    round_robin(processes, quantum)
+
+else:
+    print("Invalid choice!")
