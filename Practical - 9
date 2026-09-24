@@ -1,0 +1,52 @@
+import threading
+
+# Function to calculate sum of a sublist
+def calculate_sum(numbers, start, end, result, index):
+    total = 0
+
+    for i in range(start, end):
+        total += numbers[i]
+
+    result[index] = total
+
+
+# Main program
+n = int(input("Enter the number of elements: "))
+
+numbers = []
+
+print("Enter the numbers:")
+
+for i in range(n):
+    numbers.append(int(input(f"Number {i + 1}: ")))
+
+# Divide the list into two parts
+mid = n // 2
+
+result = [0, 0]
+
+# Create two threads
+thread1 = threading.Thread(
+    target=calculate_sum,
+    args=(numbers, 0, mid, result, 0)
+)
+
+thread2 = threading.Thread(
+    target=calculate_sum,
+    args=(numbers, mid, n, result, 1)
+)
+
+# Start the threads
+thread1.start()
+thread2.start()
+
+# Wait for both threads to finish
+thread1.join()
+thread2.join()
+
+# Calculate final sum
+total_sum = result[0] + result[1]
+
+print("\nSum of first sublist  =", result[0])
+print("Sum of second sublist =", result[1])
+print("Total Sum             =", total_sum)
