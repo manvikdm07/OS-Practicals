@@ -1,0 +1,15 @@
+import platform
+
+print("===== Linux System Information =====")
+
+# Kernel information
+print("Kernel Version :", platform.release())
+
+# Operating system
+print("Operating System :", platform.system())
+
+# CPU type
+print("CPU Type :", platform.machine())
+
+# CPU model
+print("CPU Model :", platform.processor())
