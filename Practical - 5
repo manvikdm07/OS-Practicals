@@ -1,0 +1,22 @@
+# Program to display Linux memory information
+
+total_memory = 0
+free_memory = 0
+
+# Read memory information from Linux kernel
+with open("/proc/meminfo", "r") as file:
+    for line in file:
+        if line.startswith("MemTotal"):
+            total_memory = int(line.split()[1])
+
+        elif line.startswith("MemFree"):
+            free_memory = int(line.split()[1])
+
+# Calculate used memory
+used_memory = total_memory - free_memory
+
+print("===== Memory Information =====")
+
+print("Total Memory : ", total_memory, "KB")
+print("Free Memory  : ", free_memory, "KB")
+print("Used Memory  : ", used_memory, "KB")
